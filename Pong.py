@@ -6,6 +6,7 @@ window = display.set_mode((win_width, win_height))
 display.set_caption('Ping Pong')
 background = transform.scale(image.load('background.jpg'), (win_width, win_height))
 clock = time.Clock()
+
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, width, height, player_speed):
          super().__init__()
@@ -21,31 +22,63 @@ class Player(GameSprite):
    # метод для управления спрайтом стрелками клавиатуры
     def update_l(self):
        keys = key.get_pressed()
-       if keys[K_LEFT] and self.rect.x > 0:
-           self.rect.x -= self.speed
-       if keys[K_RIGHT] and self.rect.x < win_width - 80:
-           self.rect.x += self.speed
+       if keys[K_UP] and self.rect.y > 0:
+           self.rect.y -= self.speed
+       if keys[K_DOWN] and self.rect.y < 400:
+           self.rect.y += self.speed
 
     def update_r(self):
-       keys = key.get_pressed()
-       if keys[K_LEFT] and self.rect.x > 0:
-           self.rect.x -= self.speed
-       if keys[K_RIGHT] and self.rect.x < win_width - 80:
-           self.rect.x += self.speed
-
+        keys = key.get_pressed()
+        if keys[K_w] and self.rect.y > 0:
+            self.rect.y -= self.speed
+        if keys[K_s] and self.rect.y < 400:
+            self.rect.y += self.speed
 
 racket1 = Player('racket.png', 0, 150, 30, 100, 15)
 racket2 = Player('racket.png', 670, 100, 30, 100, 15)
 ball = GameSprite('tenis_ball.png', 300, 300, 50, 50, 10)
 game = True
+speed_x = 3
+speed_y = 3
+finish = False
+font.init()
+font1 = font.Font(None, 35)
+lose1 = font1.render('PLAYER 1 LOSE!', True, (180, 0, 0))
+lose2 = font1.render('PLAYER 2 LOSE!', True, (180, 0, 0))
+
 while game:
-    window.blit(background, (0, 0))
-    racket1.reset()
-    racket2.reset()
-    ball.reset()
     for e in event.get():
         if e.type == QUIT:
             game = False
+    if finish != True:
+            window.blit(background, (0, 0))
+            racket1.reset()
+            racket2.reset()
+            racket1.update_l()
+            racket2.update_r()
+            ball.reset()
+    
+
+            if ball.rect.x < 0:
+                window.blit(lose1, (200, 200))
+                finish = True
+
+            if ball.rect.x > 700:
+                window.blit(lose2, (200, 200))
+                finish = True
+
+        
+
+            ball.rect.x += speed_x
+            ball.rect.y += speed_y
+
+            if ball.rect.y > 450 or ball.rect.y < 0:
+                speed_y *= -1
+
+            if sprite.collide_rect(ball, racket1) or sprite.collide_rect(ball, racket2):
+                speed_x *= -1
 
     display.update()
-    clock.tick(60)  
+    clock.tick(60)
+
+  
